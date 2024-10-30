@@ -46,10 +46,10 @@ jobs:
 ## Support
 
 For support and questions:
-- COVULOR Documentation: [link]
-- Plexicus Support: [email/link]
+- COVULOR Documentation: https://www.plexicus.com
+- Plexicus Support: engineering@plexicus.com
 - GitHub Issues: Create an issue in this repository
 
 ## About Plexicus
 
-Plexicus provides enterprise-grade code analysis through the COVULOR cloud service. Learn more at [website].
+Plexicus provides enterprise-grade code analysis through the COVULOR cloud service. Learn more at [[Plexicus](https://www.plexicus.com)].
