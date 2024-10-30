@@ -1,4 +1,3 @@
-# action.yml
 name: 'COVULOR Plexalyzer'
 description: 'Official Plexicus code analyzer for COVULOR cloud service'
 author: 'Plexicus'
@@ -9,6 +8,9 @@ branding:
 inputs:
   covulor-token:
     description: 'Authentication token for COVULOR cloud service'
+    required: true
+  repo-id:
+    description: 'Repository ID in COVULOR service'
     required: true
 
 runs:
@@ -39,5 +41,5 @@ runs:
           crplexicus.azurecr.io/plexalyzer \
           plexalyze \
           --files '${{ steps.changed-files.outputs.files }}' \
-          --repo-id ${{ github.repository }} \
+          --repo-id ${{ inputs.repo-id }} \
           --token ${{ inputs.covulor-token }}
