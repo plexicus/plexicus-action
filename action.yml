@@ -1,0 +1,43 @@
+# action.yml
+name: 'COVULOR Plexalyzer'
+description: 'Official Plexicus code analyzer for COVULOR cloud service'
+author: 'Plexicus'
+branding:
+  icon: 'shield'  
+  color: 'blue'
+
+inputs:
+  covulor-token:
+    description: 'Authentication token for COVULOR cloud service'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get changed files
+      id: changed-files
+      shell: bash
+      run: |
+        # Get modified files in PR
+        changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | jq -R -s -c 'split("\n")[:-1]')
+        echo "files=$changed_files" >> $GITHUB_OUTPUT
+        
+    - name: Run COVULOR Analysis
+      shell: bash
+      env:
+        ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+        ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+        ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+      run: |
+        # Login to Azure Container Registry
+        echo $ACR_PASSWORD | docker login $ACR_LOGIN_SERVER -u $ACR_USERNAME --password-stdin
+        
+        # Run plexalyzer container
+        docker run \
+          -v "${GITHUB_WORKSPACE}:/repo:ro" \
+          -w /repo \
+          crplexicus.azurecr.io/plexalyzer \
+          plexalyze \
+          --files '${{ steps.changed-files.outputs.files }}' \
+          --repo-id ${{ github.repository }} \
+          --token ${{ inputs.covulor-token }}
