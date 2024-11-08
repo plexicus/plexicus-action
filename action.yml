@@ -56,7 +56,7 @@ runs:
         echo "Starting COVULOR Analysis with Plexalyzer..."
 
         # Login to Azure Container Registry
-        echo "$ACR_PASSWORD" | docker login "$ACR_LOGIN_SERVER" -u "$ACR_USERNAME" --password-stdin
+        echo $ACR_PASSWORD | docker login $ACR_LOGIN_SERVER -u $ACR_USERNAME --password-stdin
 
         # Prepare arguments and temporary file for changed files scan
         TEMP_FILE=$(mktemp)
