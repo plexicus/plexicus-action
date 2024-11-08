@@ -27,9 +27,18 @@ jobs:
 ## Setup Instructions
 
 1. Generate your Plexalyzer token from the [COVULOR Connectors]
-2. Get your repository ID from COVULOR API using the following curl command:
+2. Get your repository ID from COVULOR API using the following curl commands:
+
 ```
-export PLEXALYZER_TOKEN=XXXXXXXXXXXXXXXX
+export YOUR_REPO_NAME=https://github.com/user/repo
+```
+
+```
+export YOUR_REPO_NAME=https://github.com/user/repo
+```
+
+
+```
 curl -L 'https://api.covulor.dev.plexicus.com/receive_plexalyzer_message' \
 -H 'Authorization: Bearer $PLEXALYZER_TOKEN' \
 -H 'Content-Type: application/json' \
