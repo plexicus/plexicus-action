@@ -4,7 +4,6 @@ author: 'Plexicus'
 branding:
   icon: 'shield'
   color: 'blue'
-
 inputs:
   plexalyzer-token:
     description: 'Authentication token for COVULOR cloud service'
@@ -12,13 +11,12 @@ inputs:
   repo-id:
     description: 'Repository ID in COVULOR service'
     required: true
-
 runs:
   using: 'docker'
   image: 'Dockerfile'
   env:
     PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
     REPO_ID: ${{ inputs.repo-id }}
-    ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
-    ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-    ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+    ACR_LOGIN_SERVER: $ACR_LOGIN_SERVER
+    ACR_USERNAME: $ACR_USERNAME
+    ACR_PASSWORD: $ACR_PASSWORD
