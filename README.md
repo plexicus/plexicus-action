@@ -21,7 +21,7 @@ jobs:
         uses: plexicus/plexalyzer-action@v1
         with:
           plexalyzer-token: ${{ secrets.PLEXALYZER_TOKEN }}
-          repo-id: 'your-repo-id-from-covulor'  # Get this from COVULOR dashboard
+          repo-id: ${{ vars.COVULOR_REPO_ID }}  # Get this from COVULOR dashboard
 ```
 
 ## Setup Instructions

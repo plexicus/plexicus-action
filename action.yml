@@ -21,7 +21,7 @@ runs:
       shell: bash
       run: |
         # Get modified files in the pull request
-        changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | jq -R -s -c 'split("\n")[:-1]')
+        changed_files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" | jq -R -s -c 'split("\n")[:-1]')
         echo "files=$changed_files" >> $GITHUB_OUTPUT
 
     - name: Create Configuration for Docker
@@ -37,9 +37,9 @@ runs:
         CONFIG_PATH=".plexalyzer/config.yaml"
         
         cat <<EOT > $CONFIG_PATH
-plexalyzer_token: ${{ inputs.covulor-token }}
-message_url: ${{ github.event.pull_request.url }}
-default_owner: $REPO_OWNER
+plexalyzer_token: "${{ inputs.covulor-token }}"
+message_url: "${{ github.event.pull_request.html_url }}"
+default_owner: "$REPO_OWNER"
 EOT
 
         # Export config path for use in Docker command
@@ -56,24 +56,24 @@ EOT
         echo "Starting COVULOR Analysis with Plexalyzer..."
         
         # Login to Azure Container Registry
-        echo $ACR_PASSWORD | docker login $ACR_LOGIN_SERVER -u $ACR_USERNAME --password-stdin
+        echo "$ACR_PASSWORD" | docker login "$ACR_LOGIN_SERVER" -u "$ACR_USERNAME" --password-stdin
 
         # Prepare arguments and temporary file for changed files scan
         TEMP_FILE=$(mktemp)
-        echo ${{ steps.changed-files.outputs.files }} | jq -r '.[]' > "$TEMP_FILE"
+        echo "${{ steps.changed-files.outputs.files }}" | jq -r '.[]' > "$TEMP_FILE"
 
         # Determine the repository name, stripping leading hyphens
         REPO_NAME="${GITHUB_REPOSITORY##*/}"
-        REPO_NAME=${REPO_NAME##*-}
+        REPO_NAME="${REPO_NAME##*-}"
 
         # Run Plexalyzer Docker container
         docker run \
           -v "${GITHUB_WORKSPACE}:/mounted_volumes:rw" \
           -v "${GITHUB_ENV/config_path}:/app/config/default_config.yaml" \
           -w /mounted_volumes \
-          -e MESSAGE_URL=$COVULOR_TOKEN \
-          -e PLEXALYZER_TOKEN=$COVULOR_TOKEN \
-          $ACR_LOGIN_SERVER/plexalyzer \
+          -e MESSAGE_URL="$COVULOR_TOKEN" \
+          -e PLEXALYZER_TOKEN="$COVULOR_TOKEN" \
+          "$ACR_LOGIN_SERVER/plexalyzer" \
           /venvs/plexicus-fastapi/bin/python /app/analyze.py \
           --config "/app/config/default_config.yaml" \
           --name "$REPO_NAME" \
