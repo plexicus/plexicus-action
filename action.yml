@@ -12,11 +12,73 @@ inputs:
     description: 'Repository ID in COVULOR service'
     required: true
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  env:
-    PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
-    REPO_ID: ${{ inputs.repo-id }}
-    ACR_LOGIN_SERVER: $ACR_LOGIN_SERVER
-    ACR_USERNAME: $ACR_USERNAME
-    ACR_PASSWORD: $ACR_PASSWORD
+  using: "composite"
+  steps:
+    - name: Get Changed Files
+      id: changed-files
+      shell: bash
+      run: |
+        changed_files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" | jq -R -s -c 'split("\n")[:-1]')
+        echo "files=$changed_files" >> $GITHUB_ENV
+
+    - name: Create Configuration for Docker
+      id: create-config
+      shell: bash
+      env:
+        PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
+        MESSAGE_URL: ${{ github.event.pull_request.html_url }}
+        DEFAULT_OWNER: ${{ github.repository_owner }}
+      run: |
+        # Extract repository information
+        REPO_NAME="${GITHUB_REPOSITORY##*/}"
+
+        # Generate the configuration file for Plexalyzer
+        mkdir -p .plexalyzer
+        CONFIG_PATH=".plexalyzer/config.yaml"
+        
+        # Write the configuration file line by line
+        echo "plexalyzer_token: \"$PLEXALYZER_TOKEN\"" > $CONFIG_PATH
+        echo "message_url: \"$MESSAGE_URL\"" >> $CONFIG_PATH
+        echo "default_owner: \"$DEFAULT_OWNER\"" >> $CONFIG_PATH
+
+        echo "config_path=$CONFIG_PATH" >> $GITHUB_ENV
+
+    - name: Run COVULOR Analysis with Plexalyzer
+      shell: bash
+      env:
+        PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
+        CONFIG_PATH: ${{ env.config_path }}
+        ACR_LOGIN_SERVER: $ACR_LOGIN_SERVER
+        ACR_USERNAME: $ACR_USERNAME
+        ACR_PASSWORD: $ACR_PASSWORD
+        REPO_ID: ${{ inputs.repo-id }}
+      run: |
+        echo "Starting COVULOR Analysis with Plexalyzer..."
+
+        # Login to Azure Container Registry
+        echo "$ACR_PASSWORD" | docker login "$ACR_LOGIN_SERVER" -u "$ACR_USERNAME" --password-stdin
+
+        # Prepare arguments and temporary file for changed files scan
+        TEMP_FILE=$(mktemp)
+        echo "${{ env.files }}" | jq -r '.[]' > "$TEMP_FILE"
+
+        # Determine the repository name, stripping leading hyphens
+        REPO_NAME="${GITHUB_REPOSITORY##*/}"
+        REPO_NAME="${REPO_NAME##*-}"
+
+        # Run Plexalyzer Docker container
+        docker run \
+          -v "${GITHUB_WORKSPACE}:/mounted_volumes:rw" \
+          -v "$CONFIG_PATH:/app/config/default_config.yaml" \
+          -w /mounted_volumes \
+          -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
+          -e MESSAGE_URL="$MESSAGE_URL" \
+          "$ACR_LOGIN_SERVER/plexalyzer" \
+          /venvs/plexicus-fastapi/bin/python /app/analyze.py \
+          --config "/app/config/default_config.yaml" \
+          --name "$REPO_NAME" \
+          --repository_id "$REPO_ID" \
+          --files /app/files_to_analyze.txt \
+          -v "$TEMP_FILE:/app/files_to_analyze.txt"
+
+        rm "$TEMP_FILE"
