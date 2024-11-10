@@ -16,6 +16,7 @@ runs:
     PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
     MESSAGE_URL: 'http://fastapi.covulor-prd.svc.cluster.local:8000/receive_plexalyzer_message'
   args:
-    - ${{ github.repository }} # Repo name and owner
-    - ${{ github.event.pull_request.base.ref }} # Branch being merged into
-    - ${{ github.event.repository.clone_url }} # URL of the client repo
+    - ${{ inputs.repo-id }}
+    - ${{ github.repository }}
+    - ${{ github.event.pull_request.base.ref }}
+    - ${{ github.event.repository.clone_url }}
