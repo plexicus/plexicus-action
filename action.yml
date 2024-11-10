@@ -16,7 +16,7 @@ runs:
   using: 'docker'
   image: 'docker://plexicus/plexalyzer:latest'
   env:
-    MESSAGE_URL: 'http://fastapi.covulor-prd.svc.cluster.local:8000/receive_plexalyzer_message'
+    MESSAGE_URL: 'https://api.covulor.plexicus.com/receive_plexalyzer_message'
   args:
     - ${{ inputs.plexalyzer-token }}
     - ${{ inputs.repo-id }}
