@@ -9,9 +9,6 @@ inputs:
   plexalyzer-token:
     description: 'Authentication token for COVULOR cloud service'
     required: true
-  repo-id:
-    description: 'Repository ID in COVULOR service'
-    required: true
 runs:
   using: 'docker'
   image: 'docker://plexicus/plexalyzer:latest'
@@ -19,4 +16,6 @@ runs:
     PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
     MESSAGE_URL: 'http://fastapi.covulor-prd.svc.cluster.local:8000/receive_plexalyzer_message'
   args:
-    - ${{ inputs.repo-id }}
+    - ${{ github.repository }} # Repo name and owner
+    - ${{ github.event.pull_request.base.ref }} # Branch being merged into
+    - ${{ github.event.repository.clone_url }} # URL of the client repo
