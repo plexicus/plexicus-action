@@ -21,13 +21,16 @@ inputs:
   url:
     description: 'Clone URL of the repository'
     required: true
+  files:
+    description: 'Files to scan'
+    required: true
 runs:
   using: 'docker'
   image: 'docker://plexicus/plexalyzer:latest'
   entrypoint: '/venvs/plexicus-fastapi/bin/python'
   env:
     PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
-    MESSAGE_URL: 'http://fastapi.covulor-prd.svc.cluster.local:8000/receive_plexalyzer_message'
+    MESSAGE_URL: 'https://api.covulor.plexicus.com:8000/receive_plexalyzer_message'
   args:
     - "/app/analyze.py"
     - "--repository_id"
@@ -38,3 +41,5 @@ runs:
     - ${{ inputs.branch }}
     - "--url"
     - ${{ inputs.url }}
+    - "--files"
+    - ${{ inputs.files }}
