@@ -12,6 +12,15 @@ inputs:
   repo-id:
     description: 'Repository ID in COVULOR service'
     required: true
+  repo-name:
+    description: 'Name of the repository'
+    required: true
+  branch:
+    description: 'Branch name for the pull request'
+    required: true
+  url:
+    description: 'Clone URL of the repository'
+    required: true
 runs:
   using: 'docker'
   image: 'docker://plexicus/plexalyzer:latest'
@@ -24,8 +33,8 @@ runs:
     - "--repository_id"
     - ${{ inputs.repo-id }}
     - "--name"
-    - ${{ github.repository }}
+    - ${{ inputs.repo-name }}
     - "--branch"
-    - ${{ github.event.pull_request.base.ref }}
+    - ${{ inputs.branch }}
     - "--url"
-    - ${{ github.event.repository.clone_url }}
+    - ${{ inputs.url }}
