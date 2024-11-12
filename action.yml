@@ -38,7 +38,7 @@ runs:
       shell: bash
       env:
         PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
-        MESSAGE_URL: 'http://fastapi.covulor-prd.svc.cluster.local:8000/receive_plexalyzer_message'
+        MESSAGE_URL: 'http://api.covulor.plexicus.com/receive_plexalyzer_message'
       run: |
         docker run --rm \
           -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
