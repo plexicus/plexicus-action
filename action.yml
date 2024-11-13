@@ -24,6 +24,9 @@ inputs:
   files-path:
     description: 'Path to file containing files list for scanning'
     required: true
+  workspace-path:
+    description: 'Path to the repository workspace'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -43,6 +46,7 @@ runs:
         docker run --rm \
           -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
           -e MESSAGE_URL="$MESSAGE_URL" \
+          -v "${{ inputs.workspace-path }}:/mounted_volumes" \
           -v "${{ inputs.files-path }}:/app/files_to_scan.json" \
           plexicus/plexalyzer:latest \
           /venvs/plexicus-fastapi/bin/python /app/analyze.py \
