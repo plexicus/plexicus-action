@@ -30,6 +30,13 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Prepare Files List in Required Format
+      id: prepare-files
+      shell: bash
+      run: |
+        jq -r '.[]' "${{ inputs.files-path }}" > files_to_analyze.txt
+        echo "files_path=$(pwd)/files_to_analyze.txt" >> $GITHUB_ENV
+  
     - name: Output Files List for Debugging
       id: output-files-list
       shell: bash
