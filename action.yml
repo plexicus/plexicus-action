@@ -35,7 +35,7 @@ runs:
       shell: bash
       run: |
         jq -r '.[]' "${{ inputs.files-path }}" > files_to_analyze.txt
-        echo "files_path=$(pwd)/files_to_analyze.txt" >> $GITHUB_ENV
+        echo "files_to_analyze=$(pwd)/files_to_analyze.txt" >> $GITHUB_ENV
 
     - name: Run PLEXALYZER Docker Analysis
       shell: bash
