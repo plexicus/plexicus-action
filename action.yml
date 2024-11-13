@@ -36,13 +36,6 @@ runs:
       run: |
         jq -r '.[]' "${{ inputs.files-path }}" > files_to_analyze.txt
         echo "files_path=$(pwd)/files_to_analyze.txt" >> $GITHUB_ENV
-  
-    - name: Output Files List for Debugging
-      id: output-files-list
-      shell: bash
-      run: |
-        echo "Contents of files list:"
-        cat "${{ inputs.files-path }}" || echo "File not found or is empty"
 
     - name: Run PLEXALYZER Docker Analysis
       shell: bash
@@ -54,11 +47,11 @@ runs:
           -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
           -e MESSAGE_URL="$MESSAGE_URL" \
           -v "${{ inputs.workspace-path }}:/mounted_volumes" \
-          -v "${{ inputs.files-path }}:/app/files_to_scan.json" \
+          -v "$files_to_analyze:/app/files_to_analyze.json" \
           plexicus/plexalyzer:latest \
           /venvs/plexicus-fastapi/bin/python /app/analyze.py \
           --repository_id "${{ inputs.repo-id }}" \
           --name "${{ inputs.repo-name }}" \
           --branch "${{ inputs.branch }}" \
           --url "${{ inputs.url }}" \
-          --files "/app/files_to_scan.json"
+          --files "/app/files_to_analyze.txt"
