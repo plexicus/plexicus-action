@@ -48,7 +48,7 @@ runs:
         docker_command="docker run --rm \
           -e PLEXALYZER_TOKEN=\"$PLEXALYZER_TOKEN\" \
           -e MESSAGE_URL=\"$MESSAGE_URL\" \
-          -v \"${{ inputs.workspace-path }}:/mounted_volumes\" \
+          -v \"${{ inputs.workspace-path }}:/mounted_volumes\""
 
         if [ -n "${files_to_analyze}" ]; then
           docker_command+=" -v \"$files_to_analyze:/app/files_to_analyze.txt\""
