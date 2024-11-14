@@ -41,7 +41,7 @@ runs:
       shell: bash
       env:
         PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
-        MESSAGE_URL: 'https://api.covulor.plexicus.com/receive_plexalyzer_message'
+        MESSAGE_URL: 'https://api.covulor.dev.plexicus.com/receive_plexalyzer_message'
       run: |
         docker run --rm \
           -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
