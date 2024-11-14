@@ -16,55 +16,42 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: PLEXALYZER Analysis
-        uses: plexicus/plexalyzer-action@v1
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get Changed Files and Save to File
+        id: get_changed_files
+        if: ${{ vars.COVULOR_REPO_ID }}
+        shell: bash
+        run: |
+          # Capture changed files and save to a temporary file
+          changed_files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}")
+          echo "$changed_files" | jq -R -s -c 'split("\n")[:-1]' > files_to_scan.json
+          echo "files_path=$(pwd)/files_to_scan.json" >> $GITHUB_ENV
+
+      - name: Set Empty Files Path if Not Set
+        if: ${{ !vars.COVULOR_REPO_ID }}
+        run: echo "files_path=" >> $GITHUB_ENV
+
+      - name: Run PLEXALYZER Analysis
+        uses: plexicus/plexalyzer-action@main
         with:
           plexalyzer-token: ${{ secrets.PLEXALYZER_TOKEN }}
-          repo-id: ${{ vars.COVULOR_REPO_ID }}  # Get this from COVULOR dashboard
+          repo-id: ${{ vars.COVULOR_REPO_ID }}
+          repo-name: ${{ github.repository }}
+          branch: ${{ github.event.pull_request.base.ref }}
+          url: ${{ github.event.repository.clone_url }}
+          files-path: ${{ env.files_path }}
+          workspace-path: ${{ github.workspace }}
 ```
 
 ## Setup Instructions
 
 1. Generate your Plexalyzer token from the [COVULOR Connectors]
-2. Get your repository ID from COVULOR API using the following curl commands:
-
-```
-export YOUR_REPO_NAME=https://github.com/user/repo
-```
-
-```
-export YOUR_REPO_NAME=https://github.com/user/repo
-```
-
-
-```
-curl -L 'https://api.covulor.dev.plexicus.com/receive_plexalyzer_message' \
--H 'Authorization: Bearer $PLEXALYZER_TOKEN' \
--H 'Content-Type: application/json' \
--d '{
-    "request": "create-repo",
-    "extra_data": {
-        "repository_name": $YOUR_REPO_NAME
-    }
-}'
-```
-
-This will return a response like this:
-
-```
-{
-    "data": {
-        "auto_validation": true,
-        "repository_id": "6728a75a9eceb24cf4937b0d"
-    },
-    "message": "Success creating the repository",
-    "status_code": 200
-}
-```
-3. In your repository, go to Settings → Secrets and variables → Actions
-4. Add a new repository secret called `PLEXALYZER_TOKEN` with your token
-5. Create `.github/workflows/covulor.yml` with the example above, replacing `your-repo-id-from-covulor` with your actual repository ID
+2. In your repository, go to Settings → Secrets and variables → Actions
+3. Add a new repository secret called `PLEXALYZER_TOKEN` with your token
+4. Get a repository ID by running the github action once and then accessing your COVULOR account in this URL: `https://covulor.plexicus.com/repositories`
+5. Add a new repository variable called `COVULOR_REPO_ID` with your repository ID
 
 ## Required Inputs
 
@@ -86,28 +73,6 @@ This will return a response like this:
 - Valid Plexalyzer authentication token
 - Repository ID from COVULOR dashboard
 - Repository with Pull Request events enabled
-
-## Example Configuration
-
-Here's a complete example with all required parameters:
-
-```yaml
-name: PLEXALYZER Analysis
-on:
-  pull_request:
-    types: [opened, synchronize]
-
-jobs:
-  analyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: PLEXALYZER Analysis
-        uses: plexicus/plexalyzer-action@v1
-        with:
-          plexalyzer-token: ${{ secrets.PLEXALYZER_TOKEN }}
-          repo-id: 'repo-123'  # Replace with your actual repo ID
-```
 
 ## Support
 
