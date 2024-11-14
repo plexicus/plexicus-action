@@ -49,8 +49,12 @@ runs:
           -e PLEXALYZER_TOKEN=\"$PLEXALYZER_TOKEN\" \
           -e MESSAGE_URL=\"$MESSAGE_URL\" \
           -v \"${{ inputs.workspace-path }}:/mounted_volumes\" \
-          -v \"$files_to_analyze:/app/files_to_analyze.txt\" \
-          plexicus/plexalyzer:latest \
+
+        if [ -n "${files_to_analyze}" ]; then
+          docker_command+=" -v \"$files_to_analyze:/app/files_to_analyze.txt\""
+        fi
+        
+        docker_command+=" plexicus/plexalyzer:latest \
           /venvs/plexicus-fastapi/bin/python /app/analyze.py \
           --repository_id \"${{ inputs.repo-id }}\" \
           --name \"${{ inputs.repo-name }}\" \
@@ -58,7 +62,6 @@ runs:
           --url \"${{ inputs.url }}\" \
           --no-progress-bar"
 
-        # Add files argument only if files_path is set
         if [ -n "${files_to_analyze}" ]; then
           docker_command+=" --files \"/app/files_to_analyze.txt\""
         fi
