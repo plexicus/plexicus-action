@@ -55,7 +55,8 @@ runs:
           --repository_id \"${{ inputs.repo-id }}\" \
           --name \"${{ inputs.repo-name }}\" \
           --branch \"${{ inputs.branch }}\" \
-          --url \"${{ inputs.url }}\""
+          --url \"${{ inputs.url }}\" \
+          --no-progress-bar"
 
         # Add files argument only if files_path is set
         if [ -n "${files_to_analyze}" ]; then
