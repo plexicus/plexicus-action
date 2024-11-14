@@ -23,7 +23,7 @@ inputs:
     required: true
   files-path:
     description: 'Path to file containing files list for scanning'
-    required: true
+    required: false
   workspace-path:
     description: 'Path to the repository workspace'
     required: true
@@ -32,6 +32,7 @@ runs:
   steps:
     - name: Prepare Files List in Required Format
       id: prepare-files
+      if: ${{ inputs.files-path }}
       shell: bash
       run: |
         jq -r '.[]' "${{ inputs.files-path }}" > files_to_analyze.txt
@@ -43,15 +44,23 @@ runs:
         PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
         MESSAGE_URL: 'https://api.covulor.dev.plexicus.com/receive_plexalyzer_message'
       run: |
-        docker run --rm \
-          -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
-          -e MESSAGE_URL="$MESSAGE_URL" \
-          -v "${{ inputs.workspace-path }}:/mounted_volumes" \
-          -v "$files_to_analyze:/app/files_to_analyze.txt" \
+        # Construct the Docker command
+        docker_command="docker run --rm \
+          -e PLEXALYZER_TOKEN=\"$PLEXALYZER_TOKEN\" \
+          -e MESSAGE_URL=\"$MESSAGE_URL\" \
+          -v \"${{ inputs.workspace-path }}:/mounted_volumes\" \
+          -v \"$files_to_analyze:/app/files_to_analyze.txt\" \
           plexicus/plexalyzer:latest \
           /venvs/plexicus-fastapi/bin/python /app/analyze.py \
-          --repository_id "${{ inputs.repo-id }}" \
-          --name "${{ inputs.repo-name }}" \
-          --branch "${{ inputs.branch }}" \
-          --url "${{ inputs.url }}" \
-          --files "/app/files_to_analyze.txt"
+          --repository_id \"${{ inputs.repo-id }}\" \
+          --name \"${{ inputs.repo-name }}\" \
+          --branch \"${{ inputs.branch }}\" \
+          --url \"${{ inputs.url }}\""
+
+        # Add files argument only if files_path is set
+        if [ -n "${files_to_analyze}" ]; then
+          docker_command+=" --files \"/app/files_to_analyze.txt\""
+        fi
+
+        # Execute the constructed command
+        eval $docker_command
