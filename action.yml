@@ -1,5 +1,6 @@
 # action.yml
-name: 'COVULOR Plexalyzer'
+name: "Plexicus Runner Action"
+
 description: 'Official Plexicus code analyzer for COVULOR cloud service'
 author: 'Plexicus'
 branding:
