@@ -34,7 +34,7 @@ jobs:
         run: echo "files_path=" >> $GITHUB_ENV
 
       - name: Run PLEXALYZER Analysis
-        uses: plexicus/plexalyzer-action@main
+        uses: plexicus/plexicus-action@main
         with:
           plexalyzer-token: ${{ secrets.PLEXALYZER_TOKEN }}
           repo-id: ${{ vars.COVULOR_REPO_ID }}
