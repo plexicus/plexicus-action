@@ -45,23 +45,23 @@ jobs:
           workspace-path: ${{ github.workspace }}
 
       - name: Comment Findings on PR
-      uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const findings = JSON.parse(process.env.findings_output || "[]");
-          const prNumber = context.payload.pull_request.number;
-    
-          let bodyMessage = findings.length
-            ? "### Analysis Results\nThe following issues were found:\n\n" + findings.map((issue, i) => `- **Issue ${i + 1}**: ${issue}`).join("\n")
-            : "### Analysis Results\nNo issues found.";
-    
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: prNumber,
-            body: bodyMessage,
-          });
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const findings = JSON.parse(process.env.findings_output || "[]");
+            const prNumber = context.payload.pull_request.number;
+      
+            let bodyMessage = findings.length
+              ? "### Analysis Results\nThe following issues were found:\n\n" + findings.map((issue, i) => `- **Issue ${i + 1}**: ${issue}`).join("\n")
+              : "### Analysis Results\nNo issues found.";
+      
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: bodyMessage,
+            });
 ```
 
 ## Setup Instructions
