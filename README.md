@@ -14,6 +14,7 @@ on:
 
 jobs:
   analyze:
+    if: ${{ !startsWith(github.head_ref, 'Plexicus-AI-Remediation-') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
