@@ -61,7 +61,6 @@ runs:
           --name \"${{ inputs.repo-name }}\" \
           --branch \"${{ inputs.branch }}\" \
           --url \"${{ inputs.url }}\" \
-          # --output \"json\" \
           --no-progress-bar"
 
         if [ -n "${files_to_analyze}" ]; then
