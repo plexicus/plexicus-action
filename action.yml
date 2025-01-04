@@ -68,6 +68,6 @@ runs:
           docker_command+=" --files \"/app/files_to_analyze.txt\""
         fi
 
-        analysis_output=$(eval $docker_command)
-        echo "$analysis_output" > analysis_results.json
-        echo "findings_output=$analysis_output" >> $GITHUB_ENV
+        eval $docker_command
+        # echo "$analysis_output" > analysis_results.json
+        # echo "findings_output=$analysis_output" >> $GITHUB_ENV
