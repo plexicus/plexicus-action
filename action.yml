@@ -10,6 +10,9 @@ inputs:
   plexalyzer-token:
     description: 'Authentication token for COVULOR cloud service'
     required: true
+  default-owner:
+    description: 'Default repository owner'
+    required: false
   repo-id:
     description: 'Repository ID in COVULOR service'
     required: true
@@ -55,13 +58,17 @@ runs:
           docker_command+=" -v \"$files_to_analyze:/app/files_to_analyze.txt\""
         fi
         
-        docker_command+=" plexicus/plexalyzer-dev:test \
+        docker_command+=" plexicus/plexalyzer-dev:latest \
           /venvs/plexicus-fastapi/bin/python /app/analyze.py \
           --repository_id \"${{ inputs.repo-id }}\" \
           --name \"${{ inputs.repo-name }}\" \
           --branch \"${{ inputs.branch }}\" \
           --url \"${{ inputs.url }}\" \
           --no-progress-bar"
+
+        if [ ${{ inputs.default-owner }} ]; then
+          docker_command+=" --owner \"${{ inputs.default-owner }}\""
+        fi
 
         if [ -n "${files_to_analyze}" ]; then
           docker_command+=" --files \"/app/files_to_analyze.txt\""
