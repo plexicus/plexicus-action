@@ -76,5 +76,16 @@ runs:
         fi
 
         analysis_output=$(eval $docker_command)
-        echo "$analysis_output" > analysis_results.json        
+        echo "$analysis_output" > analysis_results.json
         echo "findings_output=$analysis_output" >> $GITHUB_ENV
+
+    - name: Validate Findings Output
+      shell: bash
+      run: |
+        echo "Analysis output saved:"
+        echo "$findings_output"
+
+        if [ -z "$findings_output" ]; then
+          echo "ERROR: findings_output is empty or not set."
+          exit 1
+        fi
