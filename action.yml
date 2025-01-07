@@ -76,6 +76,10 @@ runs:
         fi
 
         analysis_output=$(eval $docker_command || true)
+
+        echo "Analysis output saved:"
+        echo "$analysis_output"
+        
         docker_exit_code=$?
 
         echo "$analysis_output" > analysis_results.json
