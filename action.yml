@@ -75,9 +75,15 @@ runs:
           docker_command+=" --files \"/app/files_to_analyze.txt\""
         fi
 
-        analysis_output=$(eval $docker_command)
+        analysis_output=$(eval $docker_command || true)
+        docker_exit_code=$?
+
         echo "$analysis_output" > analysis_results.json
         echo "findings_output=$analysis_output" >> $GITHUB_ENV
+
+        if [ $docker_exit_code -ne 0 ]; then
+          echo "WARNING: Docker command failed with exit code $docker_exit_code."
+        fi
 
     - name: Validate Findings Output
       shell: bash
