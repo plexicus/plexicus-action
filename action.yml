@@ -78,7 +78,11 @@ runs:
         analysis_output=$(eval $docker_command || true)        
         docker_exit_code=$?
 
+        echo "$analysis_output"
+
         clean_output=$(echo "$analysis_output" | tr -d '\r')
+
+        echo "$clean_output"
 
         echo "$analysis_output" > analysis_results.json
         echo "findings_output=$analysis_output" >> $GITHUB_ENV
