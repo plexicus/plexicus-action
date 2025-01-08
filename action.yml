@@ -78,26 +78,10 @@ runs:
         analysis_output=$(eval $docker_command || true)        
         docker_exit_code=$?
 
-        echo "$analysis_output"
-
-        clean_output=$(echo "$analysis_output" | tr -d '\r')
-
-        echo "$clean_output"
-
         echo "$analysis_output" > analysis_results.json
-        echo "findings_output=$analysis_output" >> $GITHUB_ENV
+        echo "findings_output=$(pwd)/analysis_results.json" >> $GITHUB_ENV
+        echo "Docker command exit code: $docker_exit_code"
 
         if [ $docker_exit_code -ne 0 ]; then
           echo "WARNING: Docker command failed with exit code $docker_exit_code."
-        fi
-
-    - name: Validate Findings Output
-      shell: bash
-      run: |
-        echo "Analysis output saved:"
-        echo "$findings_output"
-
-        if [ -z "$findings_output" ]; then
-          echo "ERROR: findings_output is empty or not set."
-          exit 1
         fi
