@@ -64,7 +64,6 @@ runs:
           --name \"${{ inputs.repo-name }}\" \
           --branch \"${{ inputs.branch }}\" \
           --url \"${{ inputs.url }}\" \
-          --output \"json\" \
           --no-progress-bar"
 
         if [ ${{ inputs.default-owner }} ]; then
