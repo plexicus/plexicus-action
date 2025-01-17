@@ -4,8 +4,6 @@ Official GitHub Action for COVULOR cloud service by Plexicus. Analyze your code 
 
 ## Quick Start
 
-
-
 Add this workflow to your repository:
 
 ```yaml
@@ -13,7 +11,6 @@ name: PLEXALYZER Analysis
 on:
   pull_request:
     types: [opened, synchronize]
-
 
 jobs:
   analyze:
@@ -32,8 +29,7 @@ jobs:
         run: |
           # Capture changed files and save to a temporary file
           changed_files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}")
-          echo "$changed_files" | jq -R -s -c 'split("
-")[:-1]' > files_to_scan.json
+          echo "$changed_files" | jq -R -s -c 'split("\n")[:-1]' > files_to_scan.json
           echo "files_path=$(pwd)/files_to_scan.json" >> $GITHUB_ENV
 
       - name: Set Empty Files Path if Not Set
@@ -60,13 +56,8 @@ jobs:
             const prNumber = context.payload.pull_request.number;
       
             let bodyMessage = findings.length
-              ? "### Analysis Results
-The following issues were found:
-
-" + findings.map((issue, i) => `- **Issue ${i + 1}**: ${issue}`).join("
-")
-              : "### Analysis Results
-No issues found.";
+              ? "### Analysis Results\nThe following issues were found:\n\n" + findings.map((issue, i) => `- **Issue ${i + 1}**: ${issue}`).join("\n")
+              : "### Analysis Results\nNo issues found.";
       
             await github.rest.issues.createComment({
               owner: context.repo.owner,
