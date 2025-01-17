@@ -22,23 +22,10 @@ jobs:
 
       - name: Update README
         run: |
+          # Leer el contenido de user_action.yml
           USER_ACTION_CONTENT=$(cat user_action.yml)
-          REPLACEMENT=$'```yaml\n'"$USER_ACTION_CONTENT"$'\n```'
-          awk -v replacement="$REPLACEMENT" '
-          /^## Quick Start/{
-            print;
-            print "\nAdd this workflow to your repository:\n";
-            print replacement;
-            in_section=1;
-            next;
-          }
-          /^## Setup Instructions/{
-            in_section=0;
-          }
-          !in_section {
-            print;
-          }
-          ' README.md > README.md.tmp
+          # Usar perl para reemplazar la sección entre "## Quick Start" y "## Setup Instructions"
+          perl -0777 -pe 's/(## Quick Start\s*\n)(.*?)(?=## Setup Instructions)/$1\nAdd this workflow to your repository:\n\n```yaml\n'"$USER_ACTION_CONTENT"'\n```\n\n/' README.md > README.md.tmp
           mv README.md.tmp README.md
 
       - name: Check for changes
@@ -49,8 +36,8 @@ jobs:
       - name: Commit and push changes
         if: steps.git-check.outputs.changes == 'true'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "plexicus@plexicus.com"
+          git config --local user.name "Plexicus"
           git add README.md
           git commit -m "docs: update README with latest user_action.yml example"
           git push
