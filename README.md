@@ -5,6 +5,7 @@ Official GitHub Action for COVULOR cloud service by Plexicus. Analyze your code 
 ## Quick Start
 
 
+
 Add this workflow to your repository:
 
 ```yaml
@@ -12,6 +13,7 @@ name: PLEXALYZER Analysis
 on:
   pull_request:
     types: [opened, synchronize]
+
 
 jobs:
   analyze:
