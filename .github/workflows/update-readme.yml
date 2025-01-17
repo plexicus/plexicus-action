@@ -1,0 +1,57 @@
+name: Update README with Action Example
+on:
+  push:
+    paths:
+      - 'user_action.yml'
+      - 'README.md'
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update README
+        run: |
+          # Read the user_action.yml content
+          USER_ACTION_CONTENT=$(cat user_action.yml)
+          
+          # Create a properly formatted markdown replacement
+          # Using '```yaml' for proper syntax highlighting
+          REPLACEMENT=$'```yaml\n'"$USER_ACTION_CONTENT"$'\n```'
+          
+          # Use awk to replace the content between the Quick Start and Setup Instructions sections
+          # This preserves the rest of the README content
+          awk -v replacement="$REPLACEMENT" '
+          /^## Quick Start/{
+            print;
+            print "\nAdd this workflow to your repository:\n";
+            print replacement;
+            in_section=1;
+            next;
+          }
+          /^## Setup Instructions/{
+            in_section=0;
+          }
+          !in_section {
+            print;
+          }
+          ' README.md > README.md.tmp
+          
+          mv README.md.tmp README.md
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code README.md || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "docs: update README with latest user_action.yml example"
+          git push
