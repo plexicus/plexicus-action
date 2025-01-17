@@ -17,8 +17,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          persist-credentials: false            # We'll manually handle credentials
-          token: ${{ secrets.PERSONAL_PAT }}    # Use the Personal Access Token for checkout
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update README
         run: |
@@ -53,5 +53,4 @@ jobs:
           git config --local user.name "GitHub Action"
           git add README.md
           git commit -m "docs: update README with latest user_action.yml example"
-          # Use the PAT for pushing changes
-          git push "https://${{ secrets.PERSONAL_PAT }}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }}
+          git push
