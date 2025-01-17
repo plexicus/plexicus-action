@@ -6,6 +6,9 @@ on:
       - 'user_action.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write   
+  
 jobs:
   update-readme:
     runs-on: ubuntu-latest
@@ -14,18 +17,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          persist-credentials: true          # Preserve credentials for git push
-          token: ${{ secrets.GITHUB_TOKEN }} # Use the provided GITHUB_TOKEN
+          persist-credentials: false         # We'll manage credentials manually
+          token: ${{ secrets.PERSONAL_PAT }} # Use PAT for checkout
 
       - name: Update README
         run: |
-          # Read the content of user_action.yml
           USER_ACTION_CONTENT=$(cat user_action.yml)
-          
-          # Create a properly formatted markdown snippet with YAML syntax highlighting
           REPLACEMENT=$'```yaml\n'"$USER_ACTION_CONTENT"$'\n```'
-          
-          # Use awk to replace the content between "## Quick Start" and "## Setup Instructions"
           awk -v replacement="$REPLACEMENT" '
           /^## Quick Start/{
             print;
@@ -41,27 +39,18 @@ jobs:
             print;
           }
           ' README.md > README.md.tmp
-          
           mv README.md.tmp README.md
 
       - name: Check for changes
         id: git-check
         run: |
-          # Check if there are changes in README.md
           git diff --exit-code README.md || echo "changes=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push changes
         if: steps.git-check.outputs.changes == 'true'
         run: |
-          # Configure git user
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
-          # Add changes
           git add README.md
-          
-          # Commit changes with a message
           git commit -m "docs: update README with latest user_action.yml example"
-          
-          # Push changes back to the repository
-          git push
+          git push "https://${{ secrets.PERSONAL_PAT }}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }}
