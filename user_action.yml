@@ -3,6 +3,7 @@ on:
   pull_request:
     types: [opened, synchronize]
 
+
 jobs:
   analyze:
     if: ${{ !startsWith(github.head_ref, 'Plexicus-AI-Remediation-') }}
