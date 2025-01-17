@@ -25,23 +25,23 @@ jobs:
           python - <<'EOF'
           import re
 
-          # Leer contenido de archivos
+          # Read file contents
           with open('README.md', 'r', encoding='utf-8') as f:
               readme_content = f.read()
           with open('user_action.yml', 'r', encoding='utf-8') as f:
               user_action_content = f.read()
 
-          # Definir patrón para reemplazar contenido entre secciones
+          # Define pattern to replace content between sections
           pattern = r'(## Quick Start\s*\n)(.*?)(?=## Setup Instructions)'
           replacement = (
               r'\1\nAdd this workflow to your repository:\n\n'
               '```yaml\n' + user_action_content + '\n```\n\n'
           )
 
-          # Reemplazar el contenido utilizando expresiones regulares
+          # Replace content using regular expressions
           new_readme = re.sub(pattern, replacement, readme_content, flags=re.DOTALL)
 
-          # Guardar cambios en README.md
+          # Save changes to README.md
           with open('README.md', 'w', encoding='utf-8') as f:
               f.write(new_readme)
           EOF
