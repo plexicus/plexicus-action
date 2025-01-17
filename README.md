@@ -4,6 +4,7 @@ Official GitHub Action for COVULOR cloud service by Plexicus. Analyze your code 
 
 ## Quick Start
 
+
 Add this workflow to your repository:
 
 ```yaml
@@ -71,7 +72,9 @@ No issues found.";
               issue_number: prNumber,
               body: bodyMessage,
             });
+
 ```
+
 ## Setup Instructions
 
 1. Generate your Plexalyzer token from the [COVULOR Connectors]
