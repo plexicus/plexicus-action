@@ -1,4 +1,5 @@
 name: Update README
+
 on:
   push:
     paths:
@@ -13,8 +14,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          persist-credentials: true         # Preserve credentials for git push
-          token: ${{ secrets.GITHUB_TOKEN }}  # Use the provided GITHUB_TOKEN
+          persist-credentials: true          # Preserve credentials for git push
+          token: ${{ secrets.GITHUB_TOKEN }} # Use the provided GITHUB_TOKEN
 
       - name: Update README
         run: |
