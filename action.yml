@@ -10,6 +10,9 @@ inputs:
   plexalyzer-token:
     description: 'Authentication token for COVULOR cloud service'
     required: true
+  default-owner:
+    description: 'Default repository owner'
+    required: false
   repo-id:
     description: 'Repository ID in COVULOR service'
     required: true
@@ -21,6 +24,9 @@ inputs:
     required: true
   url:
     description: 'Clone URL of the repository'
+    required: true
+  pr-id:
+    description: 'ID of the PR to be analyzed'
     required: true
   files-path:
     description: 'Path to file containing files list for scanning'
@@ -61,13 +67,11 @@ runs:
           --name \"${{ inputs.repo-name }}\" \
           --branch \"${{ inputs.branch }}\" \
           --url \"${{ inputs.url }}\" \
-          --output=json \
+          --pr-id \"${{ inputs.pr-id }}\" \
           --no-progress-bar"
 
         if [ -n "${files_to_analyze}" ]; then
           docker_command+=" --files \"/app/files_to_analyze.txt\""
         fi
 
-        analysis_output=$(eval $docker_command)
-        echo "$analysis_output" > analysis_results.json
-        echo "findings_output=$analysis_output" >> $GITHUB_ENV
+        eval $docker_command
