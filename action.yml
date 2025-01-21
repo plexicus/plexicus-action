@@ -25,6 +25,9 @@ inputs:
   url:
     description: 'Clone URL of the repository'
     required: true
+  pr-id:
+    description: 'ID of the PR to be analyzed'
+    required: true
   files-path:
     description: 'Path to file containing files list for scanning'
     required: false
@@ -64,6 +67,7 @@ runs:
           --name \"${{ inputs.repo-name }}\" \
           --branch \"${{ inputs.branch }}\" \
           --url \"${{ inputs.url }}\" \
+          --pr-id \"${{ inputs.pr-id }}\" \
           --no-progress-bar"
 
         if [ ${{ inputs.default-owner }} ]; then
@@ -74,13 +78,4 @@ runs:
           docker_command+=" --files \"/app/files_to_analyze.txt\""
         fi
 
-        analysis_output=$(eval $docker_command || true)        
-        docker_exit_code=$?
-
-        echo "$analysis_output" > analysis_results.json
-        echo "findings_output=$(pwd)/analysis_results.json" >> $GITHUB_ENV
-        echo "Docker command exit code: $docker_exit_code"
-
-        if [ $docker_exit_code -ne 0 ]; then
-          echo "WARNING: Docker command failed with exit code $docker_exit_code."
-        fi
+        eval $docker_command
