@@ -31,5 +31,6 @@ jobs:
           repo-name: ${{ github.repository }}
           branch: ${{ github.event.pull_request.base.ref }}
           url: ${{ github.event.repository.clone_url }}
+          pr-id: ${{ github.event.pull_request.number }}
           files-path: ${{ env.files_path }}
           workspace-path: ${{ github.workspace }}
