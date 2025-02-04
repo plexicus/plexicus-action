@@ -1,4 +1,4 @@
-# COVULOR Plexalyzer Action
+# Plexalyzer Action
 
 Official GitHub Action for COVULOR cloud service by Plexicus. Analyze your code directly in your Pull Requests.
 
