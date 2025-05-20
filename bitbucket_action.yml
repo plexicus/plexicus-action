@@ -1,0 +1,58 @@
+stages:
+  - analysis
+
+analyze_code:
+  stage: analysis
+  image: debian:bookworm
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    MESSAGE_URL: 'https://api.covulor.plexicus.com/receive_plexalyzer_message'
+    FILES_PATH: "files_to_scan.json"
+  script:
+    # Install dependencies
+    - echo "Installing dependencies..."
+    - apt-get update && apt-get install -y jq git docker.io
+
+    # Checkout code
+    - echo "Checking out code..."
+    - git fetch --all --depth=1
+    - git checkout "$CI_COMMIT_REF_NAME"
+
+    # Detect changed files
+    - echo "Detecting changed files..."
+    - git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" || { echo "Branch $CI_MERGE_REQUEST_TARGET_BRANCH_NAME not found"; exit 1; }
+    - if git show-ref --verify --quiet "refs/remotes/origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"; then
+        git diff --name-only "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" "$CI_COMMIT_REF_NAME" > files_to_scan.json;
+      else
+        echo "No valid target branch found.";
+        exit 1;
+      fi
+
+    # Prepare files for analysis
+    - echo "Preparing files for analysis..."
+    - if [ -s files_to_scan.json ]; then
+        jq -R -s -c 'split("\n")[:-1]' files_to_scan.json > files_to_analyze.txt;
+      else
+        echo "No files to analyze.";
+        exit 1;
+      fi
+
+    # Run Plexalyzer
+    - echo "Running Plexalyzer..."
+    - docker run --rm 
+      -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" 
+      -e MESSAGE_URL="$MESSAGE_URL" 
+      -v "$CI_PROJECT_DIR:/mounted_volumes" 
+      -v "$CI_PROJECT_DIR/files_to_analyze.txt:/app/files_to_analyze.txt" 
+      plexicus/plexalyzer:latest 
+      /venvs/plexicus-fastapi/bin/python /app/analyze.py 
+      --repository_id "$REPO_ID" 
+      --name "$CI_PROJECT_PATH" 
+      --branch "$CI_COMMIT_REF_NAME" 
+      --url "$CI_REPOSITORY_URL" 
+      --pr-id "$CI_MERGE_REQUEST_IID" 
+      --no-progress-bar
+  only:
+    - merge_requests
