@@ -2,7 +2,7 @@ image: ubuntu:latest
 
 pipelines:
   pull-requests:
-    '**':
+    '<BRANCH>':
       - step:
           name: Checkout and Analyze Code
           services:
@@ -52,7 +52,7 @@ pipelines:
                 --pr-id "$BITBUCKET_PR_ID" \
                 --no-progress-bar
   branches:
-    '**':
+    '<BRANCH>':
       - step:
           name: Checkout and Analyze Code
           services:
