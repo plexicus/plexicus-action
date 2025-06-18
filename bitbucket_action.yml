@@ -32,7 +32,7 @@ pipelines:
 
             # Run PLEXALYZER Docker Analysis
             - export PLEXALYZER_TOKEN="${PLEXALYZER_TOKEN}"
-            - export MESSAGE_URL="https://api.covulor.dev.plexicus.com/receive_plexalyzer_message"
+            - export MESSAGE_URL="https://api.app.dev.plexicus.ai/receive_plexalyzer_message"
 
             # Start the container
             - |
