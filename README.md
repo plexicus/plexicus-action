@@ -52,7 +52,7 @@ jobs:
           echo "files_path=$(pwd)/files_to_scan.json" >> $GITHUB_ENV
 
       - name: Run PLEXALYZER Analysis
-        uses: plexicus/plexicus-action@dev
+        uses: plexicus/plexicus-action@main
         with:
           plexalyzer-token: ${{ secrets.PLEXALYZER_TOKEN }}
           default-owner: ${{ github.event.repository.owner.login }}
