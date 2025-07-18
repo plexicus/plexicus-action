@@ -43,13 +43,13 @@ jobs:
         shell: bash
         env:
           PLEXALYZER_TOKEN: ${{ secrets.PLEXALYZER_TOKEN }}
-          MESSAGE_URL: 'https://api.app.plexicus.ai/receive_plexalyzer_message'
+          MESSAGE_URL: 'https://api.app.dev.plexicus.ai/receive_plexalyzer_message'
         run: |
           # Run container without mounting the file
           container_id=$(docker run -d --rm \
             -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
             -e MESSAGE_URL="$MESSAGE_URL" \
-            plexicus/plexalyzer:latest)
+            plexicus/plexalyzer-dev:latest)
 
           docker cp "$(pwd)" "$container_id:/mounted_volumes"
 
