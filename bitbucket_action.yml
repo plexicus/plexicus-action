@@ -1,58 +1,100 @@
-stages:
-  - analysis
+image: ubuntu:latest
 
-analyze_code:
-  stage: analysis
-  image: debian:bookworm
+pipelines:
+  pull-requests:
+    '<BRANCH>':
+      - step:
+          name: Checkout and Analyze Code
+          services:
+            - docker
+          caches:
+            - docker
+          script:
+            - apt-get update && apt-get install -y jq git
+
+            # Checkout Code
+            - git fetch --all --depth=1
+            - git checkout "$BITBUCKET_BRANCH"
+
+            # Get Changed Files and Save to File
+            - echo "Fetching changed files..."
+            - git fetch origin "$BITBUCKET_PR_DESTINATION_BRANCH" || echo "Branch $BITBUCKET_PR_DESTINATION_BRANCH not found"
+            - |
+              if git show-ref --verify --quiet "refs/remotes/origin/$BITBUCKET_PR_DESTINATION_BRANCH"; then
+                git diff --name-only "origin/$BITBUCKET_PR_DESTINATION_BRANCH" "$BITBUCKET_BRANCH" > files_to_scan.json
+              else
+                echo "No valid target branch found."
+                exit 1
+              fi
+
+            # Prepare Files List in Required Format
+            - jq -R -s -c 'split("\n")[:-1]' files_to_scan.json > files_to_analyze.txt
+
+            # Run PLEXALYZER Docker Analysis
+            - export PLEXALYZER_TOKEN="${PLEXALYZER_TOKEN}"
+            - export MESSAGE_URL="https://api.app.plexicus.ai/receive_plexalyzer_message"
+
+            # Start the container
+            - |
+              container_id=$(docker run -d --rm \
+                -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
+                -e MESSAGE_URL="$MESSAGE_URL" \
+                plexicus/plexalyzer:latest)
+
+              docker cp "$(pwd)" "$container_id:/mounted_volumes"
+              docker cp "$(pwd)/files_to_analyze.txt" "$container_id:/app/files_to_analyze.txt"
+
+              docker exec "$container_id" /venvs/plexicus-fastapi/bin/python /app/analyze.py \
+                --repository_id "$COVULOR_REPO_ID" \
+                --name "$BITBUCKET_REPO_FULL_NAME" \
+                --branch "$BITBUCKET_BRANCH" \
+                --url "$BITBUCKET_GIT_HTTP_ORIGIN" \
+                --pr-id "$BITBUCKET_PR_ID" \
+                --no-progress-bar
+  branches:
+    '<BRANCH>':
+      - step:
+          name: Checkout and Analyze Code
+          services:
+            - docker
+          caches:
+            - docker
+          script:
+            # Install dependencies
+            - apt-get update && apt-get install -y jq git docker.io
+
+            # Checkout Code
+            - git fetch --all --depth=0
+            - git checkout "$BITBUCKET_BRANCH"
+
+            # Get All Files
+            - echo "Analyzing all files in the repository..."
+            - git ls-files > files_to_scan.json
+
+            # Prepare Files List in Required Format
+            - jq -R -s -c 'split("\n")[:-1]' files_to_scan.json > files_to_analyze.txt
+
+            # Run PLEXALYZER Docker Analysis
+            - export PLEXALYZER_TOKEN="${PLEXALYZER_TOKEN}"
+            - export MESSAGE_URL="https://api.app.plexicus.ai/receive_plexalyzer_message"
+
+            # Start the container
+            - |
+              container_id=$(docker run -d --rm \
+                -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
+                -e MESSAGE_URL="$MESSAGE_URL" \
+                plexicus/plexalyzer:latest)
+
+              docker cp "$(pwd)" "$container_id:/mounted_volumes"
+              docker cp "$(pwd)/files_to_analyze.txt" "$container_id:/app/files_to_analyze.txt"
+
+              docker exec "$container_id" /venvs/plexicus-fastapi/bin/python /app/analyze.py \
+                --repository_id "$COVULOR_REPO_ID" \
+                --name "$BITBUCKET_REPO_FULL_NAME" \
+                --branch "$BITBUCKET_BRANCH" \
+                --url "$BITBUCKET_GIT_HTTP_ORIGIN" \
+                --no-progress-bar
+definitions:
   services:
-    - docker:dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    MESSAGE_URL: 'https://api.covulor.plexicus.com/receive_plexalyzer_message'
-    FILES_PATH: "files_to_scan.json"
-  script:
-    # Install dependencies
-    - echo "Installing dependencies..."
-    - apt-get update && apt-get install -y jq git docker.io
-
-    # Checkout code
-    - echo "Checking out code..."
-    - git fetch --all --depth=1
-    - git checkout "$CI_COMMIT_REF_NAME"
-
-    # Detect changed files
-    - echo "Detecting changed files..."
-    - git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" || { echo "Branch $CI_MERGE_REQUEST_TARGET_BRANCH_NAME not found"; exit 1; }
-    - if git show-ref --verify --quiet "refs/remotes/origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"; then
-        git diff --name-only "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" "$CI_COMMIT_REF_NAME" > files_to_scan.json;
-      else
-        echo "No valid target branch found.";
-        exit 1;
-      fi
-
-    # Prepare files for analysis
-    - echo "Preparing files for analysis..."
-    - if [ -s files_to_scan.json ]; then
-        jq -R -s -c 'split("\n")[:-1]' files_to_scan.json > files_to_analyze.txt;
-      else
-        echo "No files to analyze.";
-        exit 1;
-      fi
-
-    # Run Plexalyzer
-    - echo "Running Plexalyzer..."
-    - docker run --rm 
-      -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" 
-      -e MESSAGE_URL="$MESSAGE_URL" 
-      -v "$CI_PROJECT_DIR:/mounted_volumes" 
-      -v "$CI_PROJECT_DIR/files_to_analyze.txt:/app/files_to_analyze.txt" 
-      plexicus/plexalyzer:latest 
-      /venvs/plexicus-fastapi/bin/python /app/analyze.py 
-      --repository_id "$REPO_ID" 
-      --name "$CI_PROJECT_PATH" 
-      --branch "$CI_COMMIT_REF_NAME" 
-      --url "$CI_REPOSITORY_URL" 
-      --pr-id "$CI_MERGE_REQUEST_IID" 
-      --no-progress-bar
-  only:
-    - merge_requests
+    docker:
+      memory: 2048

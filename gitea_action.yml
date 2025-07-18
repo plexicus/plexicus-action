@@ -2,6 +2,11 @@ name: PLEXALYZER Analysis
 on:
   pull_request:
     types: [opened, synchronize]
+    branches:
+      - '<BRANCH>'
+  push:
+    branches:
+      - '<BRANCH>'
 
 jobs:
   analyze:
@@ -16,10 +21,15 @@ jobs:
         id: get_changed_files
         shell: bash
         run: |
-          # Capture changed files and save to a temporary file
-          changed_files=$(git diff --name-only "${{ gitea.event.pull_request.base.sha }}" "${{ gitea.event.pull_request.head.sha }}")
+          if [ "${{ gitea.event_name }}" == "pull_request" ]; then
+            # For pull requests, get changed files
+            changed_files=$(git diff --name-only "${{ gitea.event.pull_request.base.sha }}" "${{ gitea.event.pull_request.head.sha }}")
+          else
+            # For push events, get all files
+            changed_files=$(git ls-files)
+          fi
           echo "$changed_files" | jq -R -s -c 'split("\n")[:-1]' > files_to_scan.json
-          echo "files_path=$(pwd)/files_to_scan.json" >> $GITEA_ENV                    
+          echo "files_path=$(pwd)/files_to_scan.json" >> $GITEA_ENV
 
       - name: Prepare Files List in Required Format
         if: ${{ env.files_path }}
@@ -33,7 +43,7 @@ jobs:
         shell: bash
         env:
           PLEXALYZER_TOKEN: ${{ secrets.PLEXALYZER_TOKEN }}
-          MESSAGE_URL: 'https://api.covulor.plexicus.com/receive_plexalyzer_message'
+          MESSAGE_URL: 'https://api.app.plexicus.ai/receive_plexalyzer_message'
         run: |
           # Run container without mounting the file
           container_id=$(docker run -d --rm \
