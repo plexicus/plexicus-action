@@ -8,7 +8,7 @@ analyze_code:
     - docker:dind
   variables:
     DOCKER_HOST: tcp://docker:2375
-    MESSAGE_URL: 'https://api.app.plexicus.ai/receive_plexalyzer_message'
+    MESSAGE_URL: 'https://api.app.dev.plexicus.ai/receive_plexalyzer_message'
     FILES_PATH: "files_to_scan.json"
   script:
     # Install dependencies
@@ -47,7 +47,7 @@ analyze_code:
       -e MESSAGE_URL="$MESSAGE_URL" 
       -v "$CI_PROJECT_DIR:/mounted_volumes" 
       -v "$CI_PROJECT_DIR/files_to_analyze.txt:/app/files_to_analyze.txt" 
-      plexicus/plexalyzer:latest 
+      plexicus/plexalyzer-dev:latest 
       /venvs/plexicus-fastapi/bin/python /app/analyze.py 
       --repository_id "$REPO_ID" 
       --name "$CI_PROJECT_PATH" 
