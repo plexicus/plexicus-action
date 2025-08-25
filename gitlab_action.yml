@@ -43,13 +43,13 @@ analyze_code:
     # Run Plexalyzer
     - echo "Running Plexalyzer..."
     - docker run --rm 
-      -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" 
+      -e PLEXALYZER_TOKEN="$<PLEXALYZER_TOKEN_SECRET_NAME>" 
       -e MESSAGE_URL="$MESSAGE_URL" 
       -v "$CI_PROJECT_DIR:/mounted_volumes" 
       -v "$CI_PROJECT_DIR/files_to_analyze.txt:/app/files_to_analyze.txt" 
       plexicus/<PLEXALYZER_IMAGE>:latest 
       /venvs/plexicus-fastapi/bin/python /app/analyze.py 
-      --repository_id "$REPO_ID" 
+      --repository_id "$<REPO_ID_VARIABLE_NAME>" 
       --name "$CI_PROJECT_PATH" 
       --branch "$CI_COMMIT_REF_NAME" 
       --url "$CI_REPOSITORY_URL" 
