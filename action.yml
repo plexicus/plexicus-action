@@ -1,7 +1,7 @@
 # action.yml
-name: "Plexicus Runner Action"
+name: "Development Plexicus Runner Action"
 
-description: 'Official Plexicus code analyzer for COVULOR cloud service'
+description: 'Development Plexicus code analyzer for COVULOR cloud service'
 author: 'Plexicus'
 branding:
   icon: 'shield'
@@ -49,7 +49,7 @@ runs:
       shell: bash
       env:
         PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
-        MESSAGE_URL: 'https://api.app.plexicus.ai/receive_plexalyzer_message'
+        MESSAGE_URL: 'https://api.app.dev.plexicus.ai/receive_plexalyzer_message'
       run: |
         # Construct the Docker command
         docker_command="docker run --rm \
@@ -61,7 +61,7 @@ runs:
           docker_command+=" -v \"$files_to_analyze:/app/files_to_analyze.txt\""
         fi
         
-        docker_command+=" plexicus/plexalyzer:latest \
+        docker_command+=" plexicus/plexalyzer-dev:latest \
           /venvs/plexicus-fastapi/bin/python /app/analyze.py \
           --repository_id \"${{ inputs.repo-id }}\" \
           --name \"${{ inputs.repo-name }}\" \

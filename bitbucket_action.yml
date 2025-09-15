@@ -31,21 +31,21 @@ pipelines:
             - jq -R -s -c 'split("\n")[:-1]' files_to_scan.json > files_to_analyze.txt
 
             # Run PLEXALYZER Docker Analysis
-            - export PLEXALYZER_TOKEN="${PLEXALYZER_TOKEN}"
-            - export MESSAGE_URL="https://api.app.plexicus.ai/receive_plexalyzer_message"
+            - export PLEXALYZER_TOKEN="${<PLEXALYZER_TOKEN_SECRET_NAME>}"
+            - export MESSAGE_URL="https://<BASE_URL>/receive_plexalyzer_message"
 
             # Start the container
             - |
               container_id=$(docker run -d --rm \
                 -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
                 -e MESSAGE_URL="$MESSAGE_URL" \
-                plexicus/plexalyzer:latest)
+                plexicus/<PLEXALYZER_IMAGE>:latest)
 
               docker cp "$(pwd)" "$container_id:/mounted_volumes"
               docker cp "$(pwd)/files_to_analyze.txt" "$container_id:/app/files_to_analyze.txt"
 
               docker exec "$container_id" /venvs/plexicus-fastapi/bin/python /app/analyze.py \
-                --repository_id "$COVULOR_REPO_ID" \
+                --repository_id "$<REPO_ID_VARIABLE_NAME>" \
                 --name "$BITBUCKET_REPO_FULL_NAME" \
                 --branch "$BITBUCKET_BRANCH" \
                 --url "$BITBUCKET_GIT_HTTP_ORIGIN" \
@@ -75,21 +75,21 @@ pipelines:
             - jq -R -s -c 'split("\n")[:-1]' files_to_scan.json > files_to_analyze.txt
 
             # Run PLEXALYZER Docker Analysis
-            - export PLEXALYZER_TOKEN="${PLEXALYZER_TOKEN}"
-            - export MESSAGE_URL="https://api.app.plexicus.ai/receive_plexalyzer_message"
+            - export PLEXALYZER_TOKEN="${<PLEXALYZER_TOKEN_SECRET_NAME>}"
+            - export MESSAGE_URL="https://<BASE_URL>/receive_plexalyzer_message"
 
             # Start the container
             - |
               container_id=$(docker run -d --rm \
                 -e PLEXALYZER_TOKEN="$PLEXALYZER_TOKEN" \
                 -e MESSAGE_URL="$MESSAGE_URL" \
-                plexicus/plexalyzer:latest)
+                plexicus/<PLEXALYZER_IMAGE>:latest)
 
               docker cp "$(pwd)" "$container_id:/mounted_volumes"
               docker cp "$(pwd)/files_to_analyze.txt" "$container_id:/app/files_to_analyze.txt"
 
               docker exec "$container_id" /venvs/plexicus-fastapi/bin/python /app/analyze.py \
-                --repository_id "$COVULOR_REPO_ID" \
+                --repository_id "$<REPO_ID_VARIABLE_NAME>" \
                 --name "$BITBUCKET_REPO_FULL_NAME" \
                 --branch "$BITBUCKET_BRANCH" \
                 --url "$BITBUCKET_GIT_HTTP_ORIGIN" \
