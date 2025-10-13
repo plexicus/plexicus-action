@@ -71,7 +71,7 @@ jobs:
 1. Generate your Plexalyzer token from the [COVULOR Connectors]
 2. In your repository, go to Settings → Secrets and variables → Actions
 3. Add a new repository secret called `PLEXALYZER_TOKEN` with your token
-4. Get a repository ID by running the github action once and then accessing your COVULOR account in this URL: `https://covulor.plexicus.com/repositories`
+4. Get a repository ID by running the github action once and then accessing your COVULOR account in this URL: `https://app.plexicus.ai/repositories`
 5. Add a new repository variable called `COVULOR_REPO_ID` with your repository ID
 
 ## Required Inputs
@@ -98,10 +98,10 @@ jobs:
 ## Support
 
 For support and questions:
-- COVULOR Documentation: https://www.plexicus.com
-- Plexicus Support: engineering@plexicus.com
+- COVULOR Documentation: https://www.plexicus.ai
+- Plexicus Support: engineering@plexicus.ai
 - GitHub Issues: Create an issue in this repository
 
 ## About Plexicus
 
-Plexicus provides enterprise-grade code analysis through the COVULOR cloud service. Learn more at [[Plexicus](https://www.plexicus.com)].
+Plexicus provides enterprise-grade code analysis through the COVULOR cloud service. Learn more at [[Plexicus](https://www.plexicus.ai)].
