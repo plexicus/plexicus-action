@@ -43,7 +43,7 @@ jobs:
         shell: bash
         env:
           PLEXALYZER_TOKEN: ${{ secrets.<PLEXALYZER_TOKEN_SECRET_NAME> }}
-          MESSAGE_URL: 'https://<BASE_URL>/receive_plexalyzer_message'
+          MESSAGE_URL: 'https://<BASE_URL>/plexalyzer-message-receipts'
         run: |
           # Run container without mounting the file
           container_id=$(docker run -d --rm \

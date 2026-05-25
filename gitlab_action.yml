@@ -8,7 +8,7 @@ analyze_code:
     - docker:dind
   variables:
     DOCKER_HOST: tcp://docker:2375
-    MESSAGE_URL: 'https://<BASE_URL>/receive_plexalyzer_message'
+    MESSAGE_URL: 'https://<BASE_URL>/plexalyzer-message-receipts'
     FILES_PATH: "files_to_scan.json"
   script:
     # Install dependencies
