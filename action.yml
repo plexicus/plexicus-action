@@ -7,6 +7,13 @@ branding:
   icon: 'shield'
   color: 'blue'
 inputs:
+  message-url:
+    description: >
+      Plexicus API endpoint for scan message receipts. Set this to YOUR
+      environment's public API origin + /plexalyzer-message-receipts. Defaults
+      to the production endpoint for backward compatibility.
+    required: false
+    default: 'https://api.app.plexicus.ai/plexalyzer-message-receipts'
   plexalyzer-token:
     description: 'Authentication token for COVULOR cloud service'
     required: true
@@ -49,7 +56,7 @@ runs:
       shell: bash
       env:
         PLEXALYZER_TOKEN: ${{ inputs.plexalyzer-token }}
-        MESSAGE_URL: 'https://api.app.plexicus.ai/plexalyzer-message-receipts'
+        MESSAGE_URL: ${{ inputs.message-url }}
       run: |
         # Construct the Docker command
         docker_command="docker run --rm \
